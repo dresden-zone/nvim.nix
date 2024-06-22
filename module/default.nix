@@ -38,6 +38,7 @@
     };
 
     plugins = {
+      image.enable = true;
       # needs 24.05
       # remove from extraPlugins
       # autoclose.enable = true; # brackets, html, ...

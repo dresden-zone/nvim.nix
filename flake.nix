@@ -14,41 +14,47 @@
     };
   };
 
-  outputs = { self, nixvim, ... }: let
-    angularLsp = { pkgs }: {
-      name = "angularls";
-      package = pkgs.callPackage ./pkgs/angular-language-server { };
-    };
-  in {
-    homeManagerModules = {
-      nvim = { config, lib, pkgs, ... }: let
-        mkLsp = import "${nixvim.outPath}/plugins/lsp/language-servers/_mk-lsp.nix" { inherit config lib pkgs; };
-      in {
-        imports = [
-          nixvim.homeManagerModules.nixvim
-          {
-            programs.nixvim = mkLsp (angularLsp { inherit pkgs; });
-          }
-          ./module
-        ];
+  outputs = { self, nixvim, ... }:
+    let
+      angularLsp = { pkgs }: {
+        name = "angularls";
+        package = pkgs.callPackage ./pkgs/angular-language-server { };
       };
-      default = self.homeManagerModules.nvim;
-    };
-
-    nixosModules = {
-      nvim = { config, lib, pkgs, ... }: let
-        mkLsp = import "${nixvim.outPath}/plugins/lsp/language-servers/_mk-lsp.nix" { inherit config lib pkgs; };
-      in {
-        imports = [
-          nixvim.nixosModules.nixvim
+    in
+    {
+      homeManagerModules = {
+        nvim = { config, lib, pkgs, ... }:
+          let
+            mkLsp = import "${nixvim.outPath}/plugins/lsp/language-servers/_mk-lsp.nix" { inherit config lib pkgs; };
+          in
           {
-            programs.nixvim = mkLsp (angularLsp { inherit pkgs; });
-          }
-          ./module
-        ];
+            imports = [
+              nixvim.homeManagerModules.nixvim
+              {
+                programs.nixvim = mkLsp (angularLsp { inherit pkgs; });
+              }
+              ./module
+            ];
+          };
+        default = self.homeManagerModules.nvim;
       };
 
-      default = self.nixosModules.nvim;
+      nixosModules = {
+        nvim = { config, lib, pkgs, ... }:
+          let
+            mkLsp = import "${nixvim.outPath}/plugins/lsp/language-servers/_mk-lsp.nix" { inherit config lib pkgs; };
+          in
+          {
+            imports = [
+              nixvim.nixosModules.nixvim
+              {
+                programs.nixvim = mkLsp (angularLsp { inherit pkgs; });
+              }
+              ./module
+            ];
+          };
+
+        default = self.nixosModules.nvim;
+      };
     };
-  };
 }
